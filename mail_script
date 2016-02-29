@@ -1,0 +1,105 @@
+#!/usr/bin/wish
+
+
+proc dialog {} {
+        set a [tk_dialog  .wm "Confirmation to exit" "ARE YOU SURE YOU WANT TO EXIT??" questhead 0 "Yes" "No"]
+        if {$a == 0} {
+        exit } 
+     }
+proc dialog1 {str} {
+	set ans1 [tk_dialog .wm "NO VALUE IN FIELD" $str  questhead 0 "OK"]
+       global answer1
+       set answer1 $ans1
+    }
+
+
+  proc send {} {
+     set sent [tk_dialog .wm "CONFIRMATION MESSAGE" "YOUR MESSAGE HAS BEEN SENT." questhead 0 "OK"]
+      }
+
+proc email_send {to from cc subject text1} {
+
+   set fid [open "| /usr/lib/sendmail -oi -t" "w"]
+   if {[string length $to]>0} {
+   puts $fid "TO: $to" } else { dialog1 "RECEPIENT'S FIELD EMPTY.CANNOT SEND EMAIL" }
+
+   if {[string length $from] > 0} {
+   puts $fid "From: $from"
+   } else {dialog1 "SENDER'S FIELD EMPTY.CANNOT SEND EMAIL" }
+
+   if {[string length $cc] > 0} {
+      puts $fid "Cc: $cc"
+   }
+   puts $fid "Subject: $subject"
+   puts $fid "Date: [clock format [clock seconds]]"
+   puts $fid "" ;# sendmail terminates header with blank line
+
+   if {$text1 == "\n"} {
+   set ans [tk_dialog .wm "EMPTY MESSAGE BOX" "YOU ARE ABOUT TO SEND AN EMPTY MESSAGE .." questhead 0 "Send" "Dont Send"]
+       global answer1
+  	 if {$ans == 0 && $answer1 != 0} {
+   	  puts $fid $text1 ;
+     send
+    } else {dialog1 "MESSAGE CANT BE SENT"}
+    } else {
+     puts $fid $text1; send } 
+     close $fid
+   
+}
+
+
+
+;#designing window containing widgets
+
+wm maxsize . 800 800
+wm minsize . 550 500
+wm title . "Send Mail Graphical User Interface"
+
+#Label and Entry field for --TO
+label .to -text "To:"
+place .to -x 20 -y 20
+
+entry .to1 -text "" -textvariable val1 -width 50
+place .to1 -x 80 -y 20
+
+#Label and Entry field for --FROM
+label .frm -text "From:"
+place .frm -x 20 -y 60
+
+entry .frm1 -text "" -textvariable val2 -width 50
+place .frm1 -x 80 -y 60
+
+#Label and Entry field for --Cc
+label .cc -text "Cc:"
+place .cc -x 20 -y 100
+
+entry .cc1 -text "" -textvariable val3 -width 50
+place .cc1 -x 80 -y 100
+
+#Label and Entry field for --Subject
+label .sub -text "Subject:"
+place .sub -x 20 -y 140
+
+entry .sub1 -text "" -textvariable val4  -width 50
+place .sub1 -x 80 -y 140
+
+#Label and Entry field for --Message
+label .msg -text "Message:" 
+place .msg -x 20 -y 180
+
+text .msg1 -width 57 -height 15
+place .msg1 -x 80 -y 180
+
+button .send -text "SEND MAIL" -command {email_send $val1 $val2 $val3 $val4 [.msg1 get 1.0 end]} 
+place .send -x 80 -y 450
+
+
+button .resetAll -text "RESET FIELDS" -command {set val1 ""; set val2 ""; set val3 ""; set val4 "" ;.msg1 delete 1.0 end }
+place .resetAll -x 180  -y 450
+
+button .resetMsg -text "RESET MESSAGE BOX" -command {.msg1 delete 1.0 end}
+place .resetMsg -x 300 -y 450
+
+button .quit -text "QUIT" -command dialog 
+place .quit -x 470 -y 450
+
