@@ -1,5 +1,6 @@
 #!/usr/bin/wish
-
+#Ashay Maheshwari, December 2015
+#A GUI based TCL application to sent an email in linux 
 
 proc dialog {} {
         set a [tk_dialog  .wm "Confirmation to exit" "ARE YOU SURE YOU WANT TO EXIT??" questhead 0 "Yes" "No"]
